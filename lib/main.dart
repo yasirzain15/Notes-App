@@ -6,7 +6,7 @@ import 'package:notes_app/home.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
-  await Hive.openBox('My Box');
+  await Hive.openBox(' Box');
   runApp(NotesApp());
 }
 
@@ -15,6 +15,10 @@ class NotesApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(title: 'Notes', home: HiveDatabaseFlutter());
+    return const MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Notes',
+      home: HiveDatabaseFlutter(),
+    );
   }
 }

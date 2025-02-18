@@ -10,7 +10,7 @@ class HiveDatabaseFlutter extends StatefulWidget {
 }
 
 class _HiveDatabaseFlutterState extends State<HiveDatabaseFlutter> {
-  var peopleBox = Hive.box('My Box');
+  var peopleBox = Hive.box('Box');
   final _nameController = TextEditingController();
   final _ageController = TextEditingController();
   @override
@@ -59,7 +59,7 @@ class _HiveDatabaseFlutterState extends State<HiveDatabaseFlutter> {
               ElevatedButton(
                 onPressed: () {
                   final name = _nameController.text;
-                  final age = int.parse(_ageController.text);
+                  final age = int.tryParse(_ageController.text);
                   if (name.isEmpty || age == null) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text('Please fill all the fields')),
@@ -88,7 +88,7 @@ class _HiveDatabaseFlutterState extends State<HiveDatabaseFlutter> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.blue[50],
+      backgroundColor: Colors.blue[100],
       appBar: AppBar(title: Text('Notes')),
       body: ValueListenableBuilder(
         valueListenable: peopleBox.listenable(),
@@ -96,15 +96,63 @@ class _HiveDatabaseFlutterState extends State<HiveDatabaseFlutter> {
           if (box.isEmpty) {
             return Center(child: Text('No Notes Added'));
           }
-          return ListView.builder(itemBuilder: (context,item){})
+          return ListView.builder(
+            itemCount: box.length,
+            itemBuilder: (context, index) {
+              final key = box.keyAt(index).toString();
+              final items = box.get(key);
+              return Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Material(
+                  color: Colors.white,
+                  elevation: 2,
+                  borderRadius: BorderRadius.circular(10),
+                  child: Padding(
+                    padding: EdgeInsets.all(10),
+                    child: ListTile(
+                      title: Text(items?['name'] ?? 'Unknown'),
+                      subtitle: Text("Age:${items?['age'] ?? "Unknown"}"),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.max,
+                        children: [
+                          IconButton(
+                            onPressed: () {
+                              addOrUpdate(key: key);
+                            },
+                            icon: Icon(Icons.edit),
+                          ),
+                          IconButton(
+                            onPressed: () {
+                              peopleBox.delete(key);
+                            },
+                            icon: Icon(Icons.delete),
+                          ),
+                          IconButton(
+                            onPressed: () {
+                              addOrUpdate(key: key);
+                            },
+                            icon: Icon(Icons.edit),
+                          ),
+                          IconButton(
+                            onPressed: () {
+                              peopleBox.delete(key);
+                            },
+                            icon: Icon(Icons.delete),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            },
+          );
         },
       ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.blue,
         foregroundColor: Colors.white,
-        onPressed: () {
-          // Add a note
-        },
+        onPressed: () => addOrUpdate(),
         child: Icon(Icons.add),
       ),
     );
